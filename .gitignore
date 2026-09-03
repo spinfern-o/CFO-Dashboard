@@ -1,0 +1,12 @@
+#java compiled files
+*.class
+
+#macOS
+.DS_Store
+
+#vs code specific
+.vscode/
+
+#temp files
+*.tmp
+*.log
