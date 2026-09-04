@@ -2,6 +2,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.HashMap;
 
 public class CFODashboard {
 
@@ -10,36 +11,33 @@ public class CFODashboard {
     String month;
     int monthNum;
     double revenue;
-    double directExpenses;
-    double operatingExpenses;
     double budget;
+    Expenses expenses;
 
     public CFODashboard(
         String month,
         int monthNum,
         double revenue,
-        double directExpenses,
-        double operatingExpenses,
-        double budget
+        double budget,
+        Expenses expenses
     ) {
         this.month = month;
         this.monthNum = monthNum;
         this.revenue = revenue;
-        this.directExpenses = directExpenses;
-        this.operatingExpenses = operatingExpenses;
         this.budget = budget;
+        this.expenses = expenses;
     }
 
     public double grossProfit() {
-        return revenue - directExpenses;
+        return revenue - expenses.getDirectExpenses();
     }
 
     public double netProfit() {
-        return grossProfit() - operatingExpenses;
+        return grossProfit() - expenses.getOperatingExpenses();
     }
 
     public double budgetPerformance() {
-        return budget - (directExpenses + operatingExpenses);
+        return budget - (expenses.getDirectExpenses() + expenses.getOperatingExpenses());
     }
 
     public static void compareMonths(CFODashboard month1, CFODashboard month2) {
@@ -53,25 +51,30 @@ public class CFODashboard {
         }
     }
 
-    public static CFODashboard askForMonth(Scanner input, ArrayList<CFODashboard> months, String prompt) {
-        while (true) {
+        public static CFODashboard askForMonth(Scanner input, ArrayList<CFODashboard> months, String prompt){
+        while (true){
             System.out.println(prompt);
-            if (!input.hasNextLine()) return null;
-            String answer = input.nextLine().trim(); //erase whitespace
+            String answer = input.nextLine().trim();
             int monthNum;
+
             try {
-                monthNum = Integer.parseInt(answer); //changes user's string to int
-            } catch (NumberFormatException e) {
-                System.out.println("Please enter a whole number.");
+                monthNum = Integer.parseInt(answer);
+            }catch (NumberFormatException e){
+                System.out.println("Please enter an integer");
                 continue;
             }
-            if (monthNum == 0) return null;
+
+            if (monthNum == 0){
+                return null;
+            }
+
             CFODashboard selected = findMonth(months, monthNum);
-            if (selected == null) {
+
+            if (selected == null){
                 System.out.println("No data for month " + monthNum + ".");
-                input.close();
                 continue;
             }
+
             return selected;
         }
     }
@@ -85,19 +88,72 @@ public class CFODashboard {
         return null;
     }
 
+    public void displayBoard(){
+        System.out.println(month + "'s financial dashboard");
+
+        System.out.printf("Revenue: $%,.2f%n", revenue);
+
+        System.out.printf("COGS: $%,.2f%n", expenses.getCOGS());
+
+        System.out.printf("Rent: $%,.2f%n", expenses.getRent());
+
+        System.out.printf("Contracts: $%,.2f%n", expenses.getContracts());
+
+        System.out.printf("Direct Expenses: $%,.2f%n", expenses.getDirectExpenses());
+
+        System.out.printf("Operating Expenses: $%,.2f%n", expenses.getOperatingExpenses());
+
+        System.out.printf("Total Expenses: $%,.2f%n", expenses.getTotalExpenses());
+
+        System.out.printf("Gross Profit: $%,.2f%n", grossProfit());
+
+        System.out.printf("Net Profit: $%,.2f%n", netProfit());
+
+        System.out.printf("Budget: $%,.2f%n", budget);
+    }
+
+    
+
     public static void main(String[] args) {
-
+        System.out.println("CWD: " + System.getProperty("user.dir"));
+        System.out.println("Looking for: " + new File("data/expenses.csv").getAbsolutePath());
+        System.out.println("Exists? " + new File("data/expenses.csv").exists());
+        File dataDir = new File("data");
+        System.out.println("data/ exists? " + dataDir.exists());
+        if (dataDir.exists()) {
+            for (String f : dataDir.list()) System.out.println("   found file: [" + f + "]");
+        }
+        
         ArrayList<CFODashboard> months = new ArrayList<>();
+        HashMap<Integer, Expenses> expensesByMonth = new HashMap<>(); //creates hashmap to link all the .javas via monthNum
 
-        String month;
-        int monthNum;
-        double revenue;
-        double dExpenses;
-        double oExpenses;
-        double budget;
+        try{ //expenses .csv first; double check on the order of the csvs
+            File file = new File("data/expenses.csv");
+            Scanner expenseReader = new Scanner(file);
+            expenseReader.nextLine();
+
+            while(expenseReader.hasNextLine()){
+                String line = expenseReader.nextLine();
+                String[] eData = line.split(",");
+
+                int monthNum = Integer.parseInt(eData[0]);
+                double COGS = Double.parseDouble(eData[1]);
+                double rent = Double.parseDouble(eData[2]);
+                double contract = Double.parseDouble(eData[3]);
+                double directExpenses = Double.parseDouble(eData[4]);
+                double operatingExpenses = Double.parseDouble(eData[5]);
+
+                Expenses expenses = new Expenses(monthNum, COGS, rent, contract, directExpenses, operatingExpenses);
+
+                expensesByMonth.put(monthNum, expenses); //into hashmap
+            }
+            expenseReader.close();
+        } catch (FileNotFoundException e){
+            System.out.println("Expenses file not found"); 
+        }
 
         try{
-            File file = new File("test.csv");
+            File file = new File("data/dashboard.csv");
             Scanner fileReader = new Scanner(file);
             fileReader.nextLine(); //skips the header
 
@@ -106,53 +162,37 @@ public class CFODashboard {
 
                 String[] data = line.split(","); //csv files export w/comma
 
-                month = data[0];
-                monthNum = Integer.parseInt(data[1]);
-                revenue = Double.parseDouble(data[2]);
-                dExpenses = Double.parseDouble(data[3]);
-                oExpenses = Double.parseDouble(data[4]);
-                budget = Double.parseDouble(data[5]);
+                String month = data[0];
+                int monthNum = Integer.parseInt(data[1]);
+                double revenue = Double.parseDouble(data[2]);
+                double budget = Double.parseDouble(data[3]);
+                Expenses expenses = expensesByMonth.get(monthNum); //retrieves the monthNum's expenses object
 
                 CFODashboard monthly = new CFODashboard(
                     month,
                     monthNum,
                     revenue,
-                    dExpenses,
-                    oExpenses,
-                    budget
+                    budget,
+                    expenses
                 );
+
                 months.add(monthly);
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("File not found");
-        } 
+            fileReader.close();
 
-        months.sort(
-        (month1, month2) ->
-            Integer.compare(month1.monthNum, month2.monthNum)
-        );
+        } catch (FileNotFoundException e) {
+                System.out.println("File not found");
+        } 
 
         System.out.println("Months on file:");
         for (CFODashboard m: months){
             System.out.println(m.monthNum + " - " + m.month);
         }
-
         CFODashboard selectedMonth = askForMonth(input, months, "Which month's dashboard do you wish to see? (month num, 0 to quit)");
-
-        /* change the code below to show the entirety of the dashboard
-            AND ask if user wants to see another month as well */
         
-        // if (selectedMonth.budgetPerformance() > 0) {
-        //     System.out.println(
-        //         "Budget: You were under budget by $" +
-        //         selectedMonth.budgetPerformance());
-        // } else if (selectedMonth.budgetPerformance() < 0) {
-        //     System.out.println(
-        //         "Budget: You were over budget by $" +
-        //         Math.abs(selectedMonth.budgetPerformance()));
-        // } else {
-        //     System.out.println("You are exactly on budget.");
-        // }
+        if (selectedMonth != null){
+            selectedMonth.displayBoard();
+        } 
 
         input.close();
     }
