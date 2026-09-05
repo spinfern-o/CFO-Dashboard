@@ -38,7 +38,7 @@ public class CFODashboard {
 
     public double budgetPerformance() {
         return budget - (expenses.getDirectExpenses() + expenses.getOperatingExpenses());
-    }
+    } 
 
     public static void compareMonths(CFODashboard month1, CFODashboard month2) {
         double difference = month1.netProfit() - month2.netProfit();
@@ -97,7 +97,7 @@ public class CFODashboard {
 
         System.out.printf("Rent: $%,.2f%n", expenses.getRent());
 
-        System.out.printf("Contracts: $%,.2f%n", expenses.getContracts());
+        System.out.printf("Labor: $%,.2f%n", expenses.getLabor());
 
         System.out.printf("Direct Expenses: $%,.2f%n", expenses.getDirectExpenses());
 
@@ -111,23 +111,11 @@ public class CFODashboard {
 
         System.out.printf("Budget: $%,.2f%n", budget);
     }
-
-    
-
     public static void main(String[] args) {
-        System.out.println("CWD: " + System.getProperty("user.dir"));
-        System.out.println("Looking for: " + new File("data/expenses.csv").getAbsolutePath());
-        System.out.println("Exists? " + new File("data/expenses.csv").exists());
-        File dataDir = new File("data");
-        System.out.println("data/ exists? " + dataDir.exists());
-        if (dataDir.exists()) {
-            for (String f : dataDir.list()) System.out.println("   found file: [" + f + "]");
-        }
-        
         ArrayList<CFODashboard> months = new ArrayList<>();
         HashMap<Integer, Expenses> expensesByMonth = new HashMap<>(); //creates hashmap to link all the .javas via monthNum
 
-        try{ //expenses .csv first; double check on the order of the csvs
+        try{ //expenses .csv first; double check on the order of the csvs3
             File file = new File("data/expenses.csv");
             Scanner expenseReader = new Scanner(file);
             expenseReader.nextLine();
@@ -139,11 +127,11 @@ public class CFODashboard {
                 int monthNum = Integer.parseInt(eData[0]);
                 double COGS = Double.parseDouble(eData[1]);
                 double rent = Double.parseDouble(eData[2]);
-                double contract = Double.parseDouble(eData[3]);
+                double labor = Double.parseDouble(eData[3]);
                 double directExpenses = Double.parseDouble(eData[4]);
                 double operatingExpenses = Double.parseDouble(eData[5]);
 
-                Expenses expenses = new Expenses(monthNum, COGS, rent, contract, directExpenses, operatingExpenses);
+                Expenses expenses = new Expenses(monthNum, COGS, rent, labor, directExpenses, operatingExpenses);
 
                 expensesByMonth.put(monthNum, expenses); //into hashmap
             }

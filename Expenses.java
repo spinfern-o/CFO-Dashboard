@@ -3,7 +3,7 @@ public class Expenses {
     int eMonthNum;
     double COGS;
     double rent;
-    double contract;
+    double labor;
     double directExpenses;
     double operatingExpenses;
 
@@ -11,14 +11,14 @@ public class Expenses {
         int eMonthNum,
         double COGS,
         double rent,
-        double contract,
+        double labor,
         double directExpenses,
         double operatingExpenses
     ) {
         this.eMonthNum = eMonthNum;
         this.COGS = COGS;
         this.rent = rent;
-        this.contract = contract;
+        this.labor = labor;
         this.directExpenses = directExpenses;
         this.operatingExpenses = operatingExpenses;
     }
@@ -46,7 +46,7 @@ public class Expenses {
         return COGS;
     }
 
-    public double getContracts(){
-        return contract;
+    public double getLabor(){
+        return labor;
     }
 }
