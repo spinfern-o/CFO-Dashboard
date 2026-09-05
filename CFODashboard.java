@@ -29,16 +29,42 @@ public class CFODashboard {
     }
 
     public double grossProfit() {
-        return revenue - expenses.getDirectExpenses();
+        return ((revenue - expenses.getDirectExpenses())/revenue) * 100;
     }
 
     public double netProfit() {
-        return grossProfit() - expenses.getOperatingExpenses();
+        return ((grossProfit() - expenses.getOperatingExpenses())/revenue) * 100;
     }
 
-    public double budgetPerformance() {
-        return budget - (expenses.getDirectExpenses() + expenses.getOperatingExpenses());
-    } 
+    public double foodCost() {
+        return (expenses.getCOGS()/revenue) * 100;
+    }
+
+    public double laborCost() {
+        return (expenses.getLabor()/revenue) * 100;
+    }
+
+    public double primeCost(){
+        return ((expenses.getCOGS() + expenses.getLabor())/revenue) * 100;
+    }
+
+    public double occupancy(){
+        return (expenses.getRent()/revenue) * 100;
+    }
+
+    public double budgetPercent(){
+        return (budget/expenses.getTotalExpenses()) * 100;
+    }
+
+    public void onBudget(){
+        if (budget - expenses.getTotalExpenses() > 0){
+            System.out.printf("You used %.2f%% of your budget%n", ((int)budgetPercent() * 100/100.0)); //trucated to 2 decimal numbers w/printf
+        } else if (budget - expenses.getTotalExpenses() < 0){
+            System.out.printf("You used %.2f%% of your budget%n", ((int)budgetPercent() * 100/100.0));
+        } else {
+            System.out.println("You're exactly on budget");
+        }
+    }
 
     public static void compareMonths(CFODashboard month1, CFODashboard month2) {
         double difference = month1.netProfit() - month2.netProfit();
@@ -51,7 +77,7 @@ public class CFODashboard {
         }
     }
 
-        public static CFODashboard askForMonth(Scanner input, ArrayList<CFODashboard> months, String prompt){
+    public static CFODashboard askForMonth(Scanner input, ArrayList<CFODashboard> months, String prompt){
         while (true){
             System.out.println(prompt);
             String answer = input.nextLine().trim();
@@ -90,26 +116,15 @@ public class CFODashboard {
 
     public void displayBoard(){
         System.out.println(month + "'s financial dashboard");
-
-        System.out.printf("Revenue: $%,.2f%n", revenue);
-
-        System.out.printf("COGS: $%,.2f%n", expenses.getCOGS());
-
-        System.out.printf("Rent: $%,.2f%n", expenses.getRent());
-
-        System.out.printf("Labor: $%,.2f%n", expenses.getLabor());
-
-        System.out.printf("Direct Expenses: $%,.2f%n", expenses.getDirectExpenses());
-
-        System.out.printf("Operating Expenses: $%,.2f%n", expenses.getOperatingExpenses());
-
-        System.out.printf("Total Expenses: $%,.2f%n", expenses.getTotalExpenses());
-
-        System.out.printf("Gross Profit: $%,.2f%n", grossProfit());
-
-        System.out.printf("Net Profit: $%,.2f%n", netProfit());
-
-        System.out.printf("Budget: $%,.2f%n", budget);
+        System.out.printf("%-22s %12s%n", "Revenue",      String.format("$%,.2f", revenue));
+        System.out.printf("%-22s %12s%n", "Gross Profit", String.format("$%,.2f", grossProfit()));
+        System.out.printf("%-22s %12s%n", "Net Profit",   String.format("$%,.2f", netProfit()));
+        System.out.println();
+        System.out.printf("%-22s %11.1f%%%n", "Prime Cost", primeCost());
+        System.out.printf("%-22s %11.1f%%%n", "Food Cost",  foodCost());
+        System.out.printf("%-22s %11.1f%%%n", "Labor Cost", laborCost());
+        System.out.printf("%-22s %11.1f%%%n", "Occupancy",  occupancy());
+        onBudget();
     }
     public static void main(String[] args) {
         ArrayList<CFODashboard> months = new ArrayList<>();
