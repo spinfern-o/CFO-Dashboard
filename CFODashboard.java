@@ -33,7 +33,7 @@ public class CFODashboard {
     }
 
     public double netProfit() {
-        return ((grossProfit() - expenses.getOperatingExpenses())/revenue) * 100;
+        return ((revenue - expenses.getDirectExpenses() - expenses.getOperatingExpenses())/revenue) * 100;
     }
 
     public double foodCost() {
@@ -53,27 +53,16 @@ public class CFODashboard {
     }
 
     public double budgetPercent(){
-        return (budget/expenses.getTotalExpenses()) * 100;
+        return (expenses.getTotalExpenses()/budget) * 100;
     }
 
     public void onBudget(){
         if (budget - expenses.getTotalExpenses() > 0){
-            System.out.printf("You used %.2f%% of your budget%n", ((int)budgetPercent() * 100/100.0)); //trucated to 2 decimal numbers w/printf
+            System.out.printf("You used %.2f%% of your budget%n", ((int)(budgetPercent() * 100)/100.0)); //trucated to 2 decimal numbers w/printf
         } else if (budget - expenses.getTotalExpenses() < 0){
-            System.out.printf("You used %.2f%% of your budget%n", ((int)budgetPercent() * 100/100.0));
+            System.out.printf("You used %.2f%% of your budget%n", ((int)(budgetPercent() * 100)/100.0));
         } else {
             System.out.println("You're exactly on budget");
-        }
-    }
-
-    public static void compareMonths(CFODashboard month1, CFODashboard month2) {
-        double difference = month1.netProfit() - month2.netProfit();
-        if (difference > 0) {
-            System.out.println(month1.month + " is more profitable by $" + difference);
-        } else if (difference < 0) {
-            System.out.println(month2.month + " is more profitable by $" + Math.abs(difference));
-        } else {
-            System.out.println("They are equally profitable making a net profit of " + month1.netProfit());
         }
     }
 
@@ -117,14 +106,35 @@ public class CFODashboard {
     public void displayBoard(){
         System.out.println(month + "'s financial dashboard");
         System.out.printf("%-22s %12s%n", "Revenue",      String.format("$%,.2f", revenue));
-        System.out.printf("%-22s %12s%n", "Gross Profit", String.format("$%,.2f", grossProfit()));
-        System.out.printf("%-22s %12s%n", "Net Profit",   String.format("$%,.2f", netProfit()));
+        System.out.printf("%-22s %11.1f%%%n", "Gross Profit", grossProfit());
+        System.out.printf("%-22s %11.1f%%%n", "Net Profit",   netProfit());
         System.out.println();
         System.out.printf("%-22s %11.1f%%%n", "Prime Cost", primeCost());
         System.out.printf("%-22s %11.1f%%%n", "Food Cost",  foodCost());
         System.out.printf("%-22s %11.1f%%%n", "Labor Cost", laborCost());
         System.out.printf("%-22s %11.1f%%%n", "Occupancy",  occupancy());
         onBudget();
+    }
+
+    public static double parseAmount(String cell) {
+        if (cell == null || cell.trim().isEmpty()) {
+            return 0.0;
+        }
+        try {
+            return Double.parseDouble(
+                cell.trim().replace(",", "") //in case for inputs w/comma (e.g. 1,800)
+            );
+        } catch (NumberFormatException e) { 
+            return 0.0;
+        }
+    }
+
+    public static String[] parseCsvLine(String line) {
+        String[] fields = line.split(",", -1); //counts for empty fields
+        for (int i = 0; i < fields.length; i++) {
+            fields[i] = fields[i].trim();
+        }
+        return fields;
     }
     public static void main(String[] args) {
         ArrayList<CFODashboard> months = new ArrayList<>();
@@ -137,14 +147,14 @@ public class CFODashboard {
 
             while(expenseReader.hasNextLine()){
                 String line = expenseReader.nextLine();
-                String[] eData = line.split(",");
+                String[] eData = parseCsvLine(line);
 
-                int monthNum = Integer.parseInt(eData[0]);
-                double COGS = Double.parseDouble(eData[1]);
-                double rent = Double.parseDouble(eData[2]);
-                double labor = Double.parseDouble(eData[3]);
-                double directExpenses = Double.parseDouble(eData[4]);
-                double operatingExpenses = Double.parseDouble(eData[5]);
+                int monthNum = (int) parseAmount(eData[0]);
+                double COGS = parseAmount(eData[1]);
+                double rent = parseAmount(eData[2]);
+                double labor = parseAmount(eData[3]);
+                double directExpenses = parseAmount(eData[4]);
+                double operatingExpenses = parseAmount(eData[5]);
 
                 Expenses expenses = new Expenses(monthNum, COGS, rent, labor, directExpenses, operatingExpenses);
 
@@ -163,14 +173,18 @@ public class CFODashboard {
             while(fileReader.hasNextLine()){
                 String line = fileReader.nextLine();
 
-                String[] data = line.split(","); //csv files export w/comma
-
+                String[] data = parseCsvLine(line);
                 String month = data[0];
-                int monthNum = Integer.parseInt(data[1]);
-                double revenue = Double.parseDouble(data[2]);
-                double budget = Double.parseDouble(data[3]);
+                int monthNum = (int) parseAmount(data[1]);
+                double revenue = parseAmount(data[2]);
+                double budget = parseAmount(data[3]);
                 Expenses expenses = expensesByMonth.get(monthNum); //retrieves the monthNum's expenses object
 
+                if (expenses == null){
+                    System.out.println("No expenses for month " + monthNum + ", skipping month");
+                    continue;
+                }
+                
                 CFODashboard monthly = new CFODashboard(
                     month,
                     monthNum,
