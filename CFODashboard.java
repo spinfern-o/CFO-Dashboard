@@ -66,6 +66,121 @@ public class CFODashboard {
         }
     }
 
+    public static void compareMonths(CFODashboard month1, CFODashboard month2) {
+        System.out.println();
+        System.out.println(month1.month + " vs " + month2.month);
+
+        System.out.printf(
+            "%-22s %12s %12s %14s%n",
+            "Metrics",
+            month1.month,
+            month2.month,
+            "Difference"
+        );
+
+        System.out.printf(
+            "%-22s $%,11.2f $%,11.2f $%+,12.2f%n",
+            "Revenue",
+            month1.revenue,
+            month2.revenue,
+            month1.revenue - month2.revenue
+        );
+
+        // Profit margins
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Gross Profit",
+            month1.grossProfit(),
+            month2.grossProfit(),
+            month1.grossProfit() - month2.grossProfit()
+        );
+
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Net Profit",
+            month1.netProfit(),
+            month2.netProfit(),
+            month1.netProfit() - month2.netProfit()
+        );
+
+        // Expense metrics as % of revenue
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Prime Cost",
+            month1.primeCost(),
+            month2.primeCost(),
+            month1.primeCost() - month2.primeCost()
+        );
+
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Food Cost",
+            month1.foodCost(),
+            month2.foodCost(),
+            month1.foodCost() - month2.foodCost()
+        );
+
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Labor Cost",
+            month1.laborCost(),
+            month2.laborCost(),
+            month1.laborCost() - month2.laborCost()
+        );
+
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Occupancy",
+            month1.occupancy(),
+            month2.occupancy(),
+            month1.occupancy() - month2.occupancy()
+        );
+
+        double direct1 =
+            (month1.expenses.getDirectExpenses() / month1.revenue) * 100;
+
+        double direct2 =
+            (month2.expenses.getDirectExpenses() / month2.revenue) * 100;
+
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Direct Expenses",
+            direct1,
+            direct2,
+            direct1 - direct2
+        );
+
+        double operating1 =
+            (month1.expenses.getOperatingExpenses() / month1.revenue) * 100;
+
+        double operating2 =
+            (month2.expenses.getOperatingExpenses() / month2.revenue) * 100;
+
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Operating Expenses",
+            operating1,
+            operating2,
+            operating1 - operating2
+        );
+
+        double total1 =
+            (month1.expenses.getTotalExpenses() / month1.revenue) * 100;
+
+        double total2 =
+            (month2.expenses.getTotalExpenses() / month2.revenue) * 100;
+
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Total Expenses",
+            total1,
+            total2,
+            total1 - total2
+        );
+
+        System.out.printf("%-22s %11.1f%% %11.1f%% %+11.1f pts%n","Budget Used",month1.budgetPercent(),month2.budgetPercent(),month1.budgetPercent() - month2.budgetPercent());
+    }
+
     public static CFODashboard askForMonth(Scanner input, ArrayList<CFODashboard> months, String prompt){
         while (true){
             System.out.println(prompt);
@@ -205,11 +320,26 @@ public class CFODashboard {
         for (CFODashboard m: months){
             System.out.println(m.monthNum + " - " + m.month);
         }
-        CFODashboard selectedMonth = askForMonth(input, months, "Which month's dashboard do you wish to see? (month num, 0 to quit)");
-        
-        if (selectedMonth != null){
+
+        while(true){
+            CFODashboard selectedMonth = askForMonth(input, months, "Which month's dashboard do you wish to see? (month num, 0 to quit)");
+            
+            if (selectedMonth == null){
+                break;
+            }
+
             selectedMonth.displayBoard();
-        } 
+            
+            while(true){
+                CFODashboard comparativeMonth = askForMonth(input, months, "Which month's dashboard would you like to compare it to? (month num, 0 to quit)");
+                
+                if (comparativeMonth == null){
+                    break;
+                }
+
+                compareMonths(selectedMonth, comparativeMonth);
+            }
+        }
 
         input.close();
     }
