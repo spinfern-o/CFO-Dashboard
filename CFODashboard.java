@@ -79,7 +79,7 @@ public class CFODashboard {
         );
 
         System.out.printf(
-            "%-22s $%,11.2f $%,11.2f $%+,12.2f%n",
+            "\033[1m%-22s $%,11.2f $%,11.2f $%+,12.2f%n\033[0m%n",
             "Revenue",
             month1.revenue,
             month2.revenue,
@@ -103,9 +103,8 @@ public class CFODashboard {
             month1.netProfit() - month2.netProfit()
         );
 
-        // Expense metrics as % of revenue
         System.out.printf(
-            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "\033[1m%-22s %11.1f%% %11.1f%% %+11.1f pts%n\033[0m%n",
             "Prime Cost",
             month1.primeCost(),
             month2.primeCost(),
@@ -170,15 +169,21 @@ public class CFODashboard {
         double total2 =
             (month2.expenses.getTotalExpenses() / month2.revenue) * 100;
 
+        System.out.println();
         System.out.printf(
-            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "\033[1m%-22s %11.1f7%% %11.1f%% %+11.1f pts\033[0m%n",
             "Total Expenses",
             total1,
             total2,
             total1 - total2
         );
 
-        System.out.printf("%-22s %11.1f%% %11.1f%% %+11.1f pts%n","Budget Used",month1.budgetPercent(),month2.budgetPercent(),month1.budgetPercent() - month2.budgetPercent());
+        System.out.printf(
+            "%-22s %11.1f%% %11.1f%% %+11.1f pts%n",
+            "Budget Used",
+            month1.budgetPercent(),
+            month2.budgetPercent(),
+            month1.budgetPercent() - month2.budgetPercent());
     }
 
     public static CFODashboard askForMonth(Scanner input, ArrayList<CFODashboard> months, String prompt){
