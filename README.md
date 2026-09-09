@@ -1,9 +1,9 @@
 # CFO Dashboard
 
-A small Java console app that turns two CSV files of monthly restaurant financials into a
-readable dashboard of KPIs — and lets you compare any two months side by side.
+A Java console app that turns two CSV files of monthly business financials into a
+readable dashboard of KPIs. Which also lets you compare any two months side by side.
 
-Built for restaurant-style P&L analysis: prime cost, food cost, labor cost, occupancy,
+Built for businesses that run with prime cost, food cost, labor cost, occupancy,
 gross/net margin, and budget utilization.
 
 ## Requirements
