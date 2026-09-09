@@ -57,10 +57,13 @@ public class CFODashboard {
     }
 
     public void onBudget(){
-        if (budget - expenses.getTotalExpenses() > 0){
-            System.out.printf("You used %.2f%% of your budget%n", ((int)(budgetPercent() * 100)/100.0)); //trucated to 2 decimal numbers w/printf
-        } else if (budget - expenses.getTotalExpenses() < 0){
-            System.out.printf("You used %.2f%% of your budget%n", ((int)(budgetPercent() * 100)/100.0));
+        double remaining = budget - expenses.getTotalExpenses();
+        double percentUsed = ((int)(budgetPercent() * 100)/100.0); //trucated to 2 decimal numbers w/printf
+
+        if (remaining > 0){
+            System.out.printf("You used %.2f%% of your budget ($%,.2f under)%n", percentUsed, remaining);
+        } else if (remaining < 0){
+            System.out.printf("You used %.2f%% of your budget ($%,.2f over)%n", percentUsed, -remaining);
         } else {
             System.out.println("You're exactly on budget");
         }
@@ -171,7 +174,7 @@ public class CFODashboard {
 
         System.out.println();
         System.out.printf(
-            "\033[1m%-22s %11.1f7%% %11.1f%% %+11.1f pts\033[0m%n",
+            "\033[1m%-22s %11.1f%% %11.1f%% %+11.1f pts\033[0m%n",
             "Total Expenses",
             total1,
             total2,
