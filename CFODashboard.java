@@ -59,7 +59,7 @@ public class CFODashboard {
 
     public void onBudget(){
         double remaining = budget - expenses.getTotalExpenses();
-        double percentUsed = ((int)(budgetPercent() * 100)/100.0); //trucated to 2 decimal numbers w/printf
+        double percentUsed = (Math.round(budgetPercent() * 100)/100.0); //trucated to 2 decimal numbers w/printf
 
         if (remaining > 0){
             System.out.printf("You used %.2f%% of your budget ($%,.2f under)%n", percentUsed, remaining);
