@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.HashMap;
@@ -49,7 +50,7 @@ public class CFODashboard {
     }
 
     public double occupancy(){
-        return (expenses.getRent()/revenue) * 100;
+        return ((expenses.getRent() + expenses.getTax())/revenue) * 100;
     }
 
     public double budgetPercent(){
@@ -259,10 +260,50 @@ public class CFODashboard {
         }
         return fields;
     }
+
+    private static String num(double value) { //formats a double for JSON; .ROOT for US locale formatting issue
+        return String.format(java.util.Locale.ROOT, "%.2f", value);
+    }
+
+    public static void writeJson(ArrayList<CFODashboard> months, String path) {
+        new File("output").mkdirs();          // create the folder if absent
+
+        try (PrintWriter out = new PrintWriter(path)) {
+            out.println("{");
+            out.println("  \"generated\": \"" + java.time.LocalDate.now() + "\",");
+            out.println("  \"months\": [");
+
+            for (int i = 0; i < months.size(); i++) {
+                CFODashboard m = months.get(i);
+                out.println("    {");
+                out.println("      \"month\": \"" + m.month + "\",");
+                out.println("      \"monthNum\": " + m.monthNum + ",");
+                out.println("      \"revenue\": " + num(m.revenue) + ",");
+                out.println("      \"cogs\": " + num(m.expenses.getCOGS()) + ",");
+                out.println("      \"rent\": " + num(m.expenses.getRent()) + ",");
+                out.println("      \"labor\": " + num(m.expenses.getLabor()) + ",");
+                out.println("      \"totalExpenses\": " + num(m.expenses.getTotalExpenses()) + ",");
+                out.println("      \"grossProfit\": " + num(m.grossProfit()) + ",");
+                out.println("      \"netProfit\": " + num(m.netProfit()) + ",");
+                out.println("      \"primeCost\": " + num(m.primeCost()) + ",");
+                out.println("      \"foodCost\": " + num(m.foodCost()) + ",");
+                out.println("      \"laborCost\": " + num(m.laborCost()) + ",");
+                out.println("      \"occupancy\": " + num(m.occupancy()) + ",");
+                out.println("      \"budget\": " + num(m.budget) + ",");
+                out.println("      \"budgetPercent\": " + num(m.budgetPercent()));
+                out.println("    }" + (i < months.size() - 1 ? "," : ""));
+            }
+
+            out.println("  ]");
+            out.println("}");
+        } catch (FileNotFoundException e) {
+            System.out.println("Could not write JSON: " + e.getMessage());
+        }
+    }
     public static void main(String[] args) {
         ArrayList<CFODashboard> months = new ArrayList<>();
         HashMap<Integer, Expenses> expensesByMonth = new HashMap<>(); //creates hashmap to link all the .javas via monthNum
-
+        
         try{ //expenses .csv first; double check on the order of the csvs3
             File file = new File("data/expenses.csv");
             Scanner expenseReader = new Scanner(file);
@@ -275,11 +316,12 @@ public class CFODashboard {
                 int monthNum = (int) parseAmount(eData[0]);
                 double COGS = parseAmount(eData[1]);
                 double rent = parseAmount(eData[2]);
-                double labor = parseAmount(eData[3]);
-                double directExpenses = parseAmount(eData[4]);
-                double operatingExpenses = parseAmount(eData[5]);
+                double tax = parseAmount(eData[3]);
+                double labor = parseAmount(eData[4]);
+                double directExpenses = parseAmount(eData[5]);
+                double operatingExpenses = parseAmount(eData[6]);
 
-                Expenses expenses = new Expenses(monthNum, COGS, rent, labor, directExpenses, operatingExpenses);
+                Expenses expenses = new Expenses(monthNum, COGS, rent, tax, labor, directExpenses, operatingExpenses);
 
                 expensesByMonth.put(monthNum, expenses); //into hashmap
             }
@@ -329,6 +371,8 @@ public class CFODashboard {
             System.out.println(m.monthNum + " - " + m.month);
         }
 
+        writeJson(months, "output/data.json");
+
         while(true){
             CFODashboard selectedMonth = askForMonth(input, months, "Which month's dashboard do you wish to see? (month num, 0 to quit)");
             
@@ -349,6 +393,7 @@ public class CFODashboard {
             }
         }
 
+        
         input.close();
     }
 }
