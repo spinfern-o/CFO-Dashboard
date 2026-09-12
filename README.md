@@ -1,9 +1,9 @@
 # CFO Dashboard
 
-A small Java console app that turns two CSV files of monthly restaurant financials into a
-readable dashboard of KPIs — and lets you compare any two months side by side.
+A Java console app that turns two CSV files of monthly business financials into a
+readable dashboard of KPIs. Which also lets you compare any two months side by side.
 
-Built for restaurant-style P&L analysis: prime cost, food cost, labor cost, occupancy,
+Built for businesses that run with prime cost, food cost, labor cost, occupancy,
 gross/net margin, and budget utilization.
 
 ## Requirements
@@ -22,7 +22,7 @@ javac -d bin CFODashboard.java Expenses.java && java -cp bin CFODashboard
 > are relative to the working directory. In VS Code, the included `.vscode/launch.json`
 > config named **CFODashboard** already handles this.
 
-## Using it
+## Example Usage
 
 The app lists the months it loaded, then loops on two prompts:
 
@@ -137,6 +137,16 @@ All ratios are expressed as a percentage of revenue, except budget used.
 
 In the comparison table, dollar rows show a signed difference and percentage rows show a
 signed change in **percentage points** (`pts`).
+
+## Using it yourself
+
+Replace both dashboard.csv and expenses.csv with your own .csv data files
+
+1. **Use the same row/columns** — replace only the data metrics.
+2. **Pick a month to compare against** — enter another month number for a side-by-side table now with your own data.
+   Keep entering numbers to compare against more months.
+
+Enter `0` at either prompt to back out; `0` at the first prompt exits the program.
 
 ## Project layout
 
