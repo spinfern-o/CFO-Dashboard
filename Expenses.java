@@ -3,6 +3,7 @@ public class Expenses {
     int eMonthNum;
     double COGS;
     double rent;
+    double tax;
     double labor;
     double directExpenses;
     double operatingExpenses;
@@ -11,6 +12,7 @@ public class Expenses {
         int eMonthNum,
         double COGS,
         double rent,
+        double tax,
         double labor,
         double directExpenses,
         double operatingExpenses
@@ -18,6 +20,7 @@ public class Expenses {
         this.eMonthNum = eMonthNum;
         this.COGS = COGS;
         this.rent = rent;
+        this.tax = tax;
         this.labor = labor;
         this.directExpenses = directExpenses;
         this.operatingExpenses = operatingExpenses;
@@ -48,5 +51,9 @@ public class Expenses {
 
     public double getLabor(){
         return labor;
+    }
+
+    public double getTax(){
+        return tax;
     }
 }
